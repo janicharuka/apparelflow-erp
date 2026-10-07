@@ -1,48 +1,64 @@
 @import "tailwindcss";
 
-:root { --bg: #f5f7fb; --panel: #ffffff; --ink: #172033; --muted: #64748b; --line: #dbe2ea; --brand: #1d4ed8; }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-input, select, textarea { color: #111827 !important; background: #fff !important; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; outline: none; }
-input:focus, select:focus, textarea:focus { border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
-.app-shell { min-height: 100vh; }
-.topbar { height: 68px; background: #0f172a; color: white; display:flex; align-items:center; justify-content:space-between; padding: 0 28px; }
-.brand { font-weight: 800; letter-spacing: .2px; }
-.role-pill { background:#1e293b; border:1px solid #334155; border-radius:999px; padding:7px 12px; font-size:13px; }
-.layout { display:grid; grid-template-columns:230px 1fr; min-height:calc(100vh - 68px); }
-.sidebar { background:#fff; border-right:1px solid var(--line); padding:22px 14px; }
-.nav-item { display:block; padding:10px 12px; border-radius:8px; color:#334155; text-decoration:none; margin-bottom:5px; font-size:14px; }
-.nav-item.active,.nav-item:hover { background:#eff6ff; color:#1d4ed8; }
-.content { padding:28px; max-width:1400px; width:100%; }
-.page-title { font-size:28px; font-weight:800; margin:0 0 6px; }
-.subtitle { color:var(--muted); margin:0 0 24px; }
-.grid { display:grid; gap:16px; }
-.grid-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
-.grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
-.card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }
-.metric { font-size:28px; font-weight:800; margin-top:7px; }
-.metric-label { color:var(--muted); font-size:13px; }
-.btn { border:0; border-radius:8px; padding:10px 14px; font-weight:700; }
-.btn-primary { background:#1d4ed8; color:white; }
-.btn-danger { background:#dc2626; color:white; }
-.btn-success { background:#15803d; color:white; }
-.btn-secondary { background:#e2e8f0; color:#0f172a; }
-.btn:disabled { opacity:.45; cursor:not-allowed; }
-.table { width:100%; border-collapse:collapse; }
-.table th,.table td { padding:12px; border-bottom:1px solid var(--line); text-align:left; font-size:14px; }
-.table th { color:#475569; background:#f8fafc; }
-.badge { display:inline-flex; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:800; }
-.green { background:#dcfce7; color:#166534; }
-.yellow { background:#fef3c7; color:#92400e; }
-.red { background:#fee2e2; color:#991b1b; }
-.blue { background:#dbeafe; color:#1e40af; }
-.form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-.field { display:flex; flex-direction:column; gap:6px; }
-.field label { font-weight:700; font-size:13px; }
-.alert { padding:12px 14px; border-radius:8px; margin:12px 0; }
-.alert-error { background:#fee2e2; color:#991b1b; }
-.alert-info { background:#dbeafe; color:#1e40af; }
-.actions { display:flex; gap:10px; flex-wrap:wrap; }
-@media (max-width:900px){ .layout{grid-template-columns:1fr}.sidebar{display:none}.grid-4,.grid-2,.form-grid{grid-template-columns:1fr}.content{padding:18px}.topbar{padding:0 16px} }
+/*
+ * CONTRAST CONTRACT (UAT defect fix): the app is light-only. We force
+ * color-scheme: light so OS dark mode can never render white-on-white inputs,
+ * and give every form control explicit dark text on a white background in
+ * every state (default, focus, disabled, autofill, placeholder, <option>).
+ */
+:root {
+  color-scheme: light;
+  --ink: #0f172a;      /* slate-900 — 17.8:1 on white */
+  --muted: #475569;    /* slate-600 — 7.6:1 on white */
+  --line: #64748b;     /* slate-500 — 4.8:1 border */
+  --focus: #1d4ed8;    /* blue-700 */
+}
+
+html, body {
+  background: #f1f5f9;
+  color: var(--ink);
+}
+
+input, select, textarea {
+  background-color: #ffffff !important;
+  color: var(--ink) !important;
+  border: 1.5px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  width: 100%;
+  -webkit-text-fill-color: var(--ink);
+}
+input::placeholder, textarea::placeholder {
+  color: #64748b;
+  -webkit-text-fill-color: #64748b;
+  opacity: 1;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+  border-color: var(--focus);
+}
+input:disabled, select:disabled, textarea:disabled {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155;
+}
+select option, select optgroup {
+  background-color: #ffffff;
+  color: var(--ink);
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-text-fill-color: var(--ink);
+}
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+  border-color: #b91c1c;
+  background-color: #fef2f2 !important;
+}
+button:focus-visible, a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
