@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUTTING_SUPERVISOR
+  CUTTING_VERIFIER
+  SEWING_SUPERVISOR
+}
+
+enum OrderStatus {
+  CUTTING_IN_PROGRESS
+  PENDING_VERIFICATION
+  REJECTED
+  VERIFIED
+  SEWING_IN_PROGRESS
+  COMPLETED
+}
+
+enum VerificationStatus {
+  GREEN
+  YELLOW
+  RED
+}
+
+enum Decision {
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  passwordHash String
+  role      Role
+  fullName  String
+  createdAt DateTime @default(now())
+  orders   CuttingOrder[] @relation("OrderCreator")
+  logs     VerificationLog[] @relation("Verifier")
+}
+
+model Recipe {
+  id              String @id @default(cuid())
+  recipeCode      String @unique
+  name            String
+  category        String
+  stdFabricYards  Float
+  wastageCap      Float
+  components      RecipeComponent[]
+  orders          CuttingOrder[]
+}
+
+model RecipeComponent {
+  id              String @id @default(cuid())
+  recipeId        String
+  componentName   String
+  piecesPerGarment Int
+  imageUrl        String?
+  recipe          Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  verificationItems VerificationItem[]
+}
+
+model CuttingOrder {
+  id              String @id @default(cuid())
+  orderNo         String @unique
+  recipeId        String
+  targetQty       Int
+  fabricRollId    String
+  actualFabricYds Float
+  status          OrderStatus @default(CUTTING_IN_PROGRESS)
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  recipe          Recipe @relation(fields: [recipeId], references: [id])
+  creator         User @relation("OrderCreator", fields: [createdBy], references: [id])
+  verificationItems VerificationItem[]
+  verificationLogs VerificationLog[]
+}
+
+model VerificationItem {
+  id          String @id @default(cuid())
+  orderId     String
+  componentId String
+  expectedQty Int
+  actualQty   Int
+  status      VerificationStatus
+  order       CuttingOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  component   RecipeComponent @relation(fields: [componentId], references: [id])
+  @@unique([orderId, componentId])
+}
+
+model VerificationLog {
+  id             String @id @default(cuid())
+  orderId        String
+  verifierId     String
+  decision       Decision
+  rejectionNote  String?
+  wastagePct     Float?
+  timestamp      DateTime @default(now())
+  order          CuttingOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  verifier       User @relation("Verifier", fields: [verifierId], references: [id])
+}
